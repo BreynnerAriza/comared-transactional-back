@@ -1,3 +1,4 @@
+
 import {
   BadGatewayException,
   GatewayTimeoutException,
@@ -9,10 +10,12 @@ import { isAxiosError } from 'axios';
 
 import { ComaredAuthService } from './comared-auth.service';
 import { ComaredSupplierResponseDto } from '../dto/comared-supplier-response.dto';
+import { ComaredBuyRequestDto } from '../dto/comared-buy-request.dto';
+import { ComaredBuyResponseDto } from '../dto/comared-buy-response.dto';
+import { ComaredRequestRejectedException } from '../exceptions/comared-request-rejected.exception';
 
 @Injectable()
 export class ComaredClientService {
-
   private readonly logger = new Logger(ComaredClientService.name);
 
   constructor(
@@ -21,30 +24,21 @@ export class ComaredClientService {
   ) {}
 
   async getSuppliers(): Promise<ComaredSupplierResponseDto[]> {
-    const token = await this.authService.getToken();
-
-    try {
-      return await this.fetchSuppliers(token);
-    } catch (error) {
-      if (isAxiosError(error) && error.response?.status === 401) {
-        this.logger.warn(
-          'Token de Comared rechazado. Renovando autenticación.',
-        );
-
-        this.authService.invalidateToken(token);
-
-        const newToken = await this.authService.getToken();
-
-        try {
-          return await this.fetchSuppliers(newToken);
-        } catch (retryError) {
-          this.handleError(retryError);
-        }
-      }
-
-      this.handleError(error);
-    }
+    return this.requestWithAuth(
+      (token) => this.fetchSuppliers(token),
+      'No fue posible consultar los proveedores',
+    );
   }
+
+  async buy(body: ComaredBuyRequestDto): Promise<ComaredBuyResponseDto> {
+    return this.requestWithAuth(
+      (token) => this.postBuy(token, body),
+      'No fue posible realizar la compra',
+      true,
+    );
+  }
+
+  // Peticiones HTTP
 
   private async fetchSuppliers(
     token: string,
@@ -60,20 +54,91 @@ export class ComaredClientService {
     return response.data;
   }
 
-  private handleError(error: unknown): never {
+  private async postBuy(
+    token: string,
+    body: ComaredBuyRequestDto,
+  ): Promise<ComaredBuyResponseDto> {
+    const response = await this.httpService.axiosRef.post<ComaredBuyResponseDto>(
+      '/buy',
+      body,
+      {
+        headers: {
+          Authorization: token,
+        },
+      },
+    );
+
+    return response.data;
+  }
+
+  // Autenticación y reintentos
+
+  private async requestWithAuth<T>(
+    operation: (token: string) => Promise<T>,
+    errorMessage: string,
+    treatClientErrorAsRejection = false,
+  ): Promise<T> {
+    const token = await this.authService.getToken();
+
+    try {
+      return await operation(token);
+    } catch (error) {
+      if (!this.isUnauthorized(error)) {
+        this.handleError(error, errorMessage, treatClientErrorAsRejection);
+      }
+
+      this.logger.warn('Token de Comared rechazado. Renovando autenticación.');
+      this.authService.invalidateToken(token);
+
+      try {
+        const newToken = await this.authService.getToken();
+        return await operation(newToken);
+      } catch (retryError) {
+        this.handleError(
+          retryError,
+          errorMessage,
+          treatClientErrorAsRejection,
+        );
+      }
+    }
+  }
+
+  // Validación y manejo de errores
+
+  private isUnauthorized(error: unknown): boolean {
+    return isAxiosError(error) && error.response?.status === 401;
+  }
+
+  private handleError(
+    error: unknown,
+    message: string,
+    treatClientErrorAsRejection = false,
+  ): never {
     if (isAxiosError(error)) {
+      const status = error.response?.status;
+
       this.logger.error(
-        `Error HTTP Comared: ${error.response?.status ?? error.code ?? 'desconocido'}`,
+        `Error HTTP Comared: ${status ?? error.code ?? 'desconocido'}`,
       );
 
       if (error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT') {
         throw new GatewayTimeoutException('PuntoRed no respondió a tiempo');
       }
+
+      if (
+        treatClientErrorAsRejection &&
+        status &&
+        status >= 400 &&
+        status < 500 &&
+        status !== 408
+      ) {
+        throw new ComaredRequestRejectedException(message);
+      }
     } else {
-      this.logger.error('Error inesperado consultando proveedores');
+      this.logger.error(`Error inesperado: ${message}`);
     }
 
-    throw new BadGatewayException('No fue posible consultar los proveedores');
+    throw new BadGatewayException(message);
   }
-
+  
 }

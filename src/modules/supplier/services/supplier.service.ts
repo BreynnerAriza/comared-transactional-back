@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { ComaredClientService } from '../../../integrations/comared/services/comared-client.service';
 import { SupplierDto } from '../dto/supplier.dto';
 import { SupplierMapper } from '../mappers/supplier.mapper';
@@ -7,10 +7,21 @@ import { SupplierMapper } from '../mappers/supplier.mapper';
 export class SupplierService {
   constructor(private readonly comaredClientService: ComaredClientService) {}
 
-  // Obtener los proveedores de red móvil
   async getSuppliers(): Promise<SupplierDto[]> {
     const suppliers = await this.comaredClientService.getSuppliers();
 
     return suppliers.map(SupplierMapper.toDto);
   }
+
+  async getById(id: string): Promise<SupplierDto> {
+    const suppliers = await this.getSuppliers();
+    const supplier = suppliers.find((item) => item.id === id);
+
+    if (!supplier) {
+      throw new NotFoundException('El operador no existe en el catálogo');
+    }
+
+    return supplier;
+  }
+  
 }
