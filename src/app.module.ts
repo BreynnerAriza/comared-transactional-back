@@ -6,21 +6,22 @@ import { RechargeModule } from './modules/recharge/recharge.module';
 import { SupplierModule } from './modules/supplier/supplier.module';
 import apiConfig from './config/api.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { UsersModule } from './modules/users/users.module';
+import { AuthModule } from './modules/auth/auth.module';
 import databaseConfig from './config/database.config';
+import jwtConfig from './config/jwt.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: `.env.${process.env.NODE_ENV || 'local'}`,
-      load: [apiConfig, databaseConfig],
+      load: [apiConfig, databaseConfig, jwtConfig],
     }),
 
     TypeOrmModule.forRootAsync({
       inject: [databaseConfig.KEY],
-      useFactory: (
-        config: ConfigType<typeof databaseConfig>,
-      ) => ({
+      useFactory: (config: ConfigType<typeof databaseConfig>) => ({
         type: 'postgres',
         host: config.host,
         port: config.port,
@@ -32,10 +33,15 @@ import databaseConfig from './config/database.config';
         logging: false,
       }),
     }),
+
     SupplierModule,
     RechargeModule,
+    UsersModule,
+    AuthModule,
   ],
+
   controllers: [AppController],
   providers: [AppService],
+  
 })
 export class AppModule {}
