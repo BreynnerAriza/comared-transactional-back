@@ -1,4 +1,3 @@
-
 import {
   BadGatewayException,
   Injectable,
@@ -15,6 +14,8 @@ import { RechargeBuyRequestDto } from '../dto/recharge-buy-request.dto';
 import { RechargeMapper } from '../mappers/recharge.mapper';
 import { RechargeRepository } from '../repositories/recharge.repository';
 import { RechargeBuyResponse } from '../interfaces/recharge-buy-response.interface';
+import { RechargeHistoryQueryDto } from '../dto/recharge-history-query.dto';
+import { RechargeHistoryResponseDto } from '../dto/recharge-history-response.dto';
 
 @Injectable()
 export class RechargeService {
@@ -25,6 +26,7 @@ export class RechargeService {
     private readonly rechargeRepository: RechargeRepository,
     private readonly supplierService: SupplierService,
   ) {}
+
   async buy(
     userId: string,
     request: RechargeBuyRequestDto,
@@ -48,6 +50,21 @@ export class RechargeService {
     );
 
     return RechargeMapper.toBuyResponse(recharge, response);
+  }
+
+  async getHistory(
+    userId: string,
+    query: RechargeHistoryQueryDto,
+  ): Promise<RechargeHistoryResponseDto> {
+    const { page, size } = query;
+
+    const [recharges, total] = await this.rechargeRepository.findByUserId(
+      userId,
+      page,
+      size,
+    );
+
+    return RechargeMapper.toHistoryResponse(recharges, total, page, size);
   }
 
   private async executePurchase(
@@ -119,5 +136,4 @@ export class RechargeService {
       rechargeId,
     });
   }
-  
 }

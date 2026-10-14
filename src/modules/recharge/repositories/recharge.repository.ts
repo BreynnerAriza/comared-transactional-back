@@ -1,4 +1,8 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -90,11 +94,21 @@ export class RechargeRepository {
     return this.repository.findOneBy({ id });
   }
 
-  async findAll(): Promise<RechargeEntity[]> {
-    return this.repository.find({
+  async findByUserId(
+    userId: string,
+    page: number,
+    size: number,
+  ): Promise<[RechargeEntity[], number]> {
+    return this.repository.findAndCount({
+      where: {
+        userId,
+      },
       order: {
         createdAt: 'DESC',
+        id: 'DESC',
       },
+      skip: (page - 1) * size,
+      take: size,
     });
   }
   

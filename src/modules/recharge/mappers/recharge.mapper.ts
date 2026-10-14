@@ -2,6 +2,8 @@ import { ComaredBuyRequestDto } from '../../../integrations/comared/dto/comared-
 import { ComaredBuyResponseDto } from '../../../integrations/comared/dto/comared-buy-response.dto';
 import { RechargeBuyRequestDto } from '../dto/recharge-buy-request.dto';
 import { RechargeDto } from '../dto/recharge.dto';
+import { RechargeHistoryItemDto } from '../dto/recharge-history-item.dto';
+import { RechargeHistoryResponseDto } from '../dto/recharge-history-response.dto';
 import { RechargeEntity } from '../entities/recharge.entity';
 import { RechargeBuyResponse } from '../interfaces/recharge-buy-response.interface';
 
@@ -27,6 +29,36 @@ export class RechargeMapper {
       cellPhone: response.cellPhone,
       value: response.value,
       supplierName: recharge.supplierName,
+    };
+  }
+
+  static toHistoryItem(recharge: RechargeEntity): RechargeHistoryItemDto {
+    return {
+      id: recharge.id,
+      supplierName: recharge.supplierName,
+      cellPhone: recharge.cellPhone,
+      amount: recharge.amount,
+      status: recharge.status,
+      transactionalId: recharge.transactionalId,
+      providerMessage: recharge.providerMessage,
+      createdAt: recharge.createdAt,
+    };
+  }
+
+  static toHistoryResponse(
+    recharges: RechargeEntity[],
+    total: number,
+    page: number,
+    size: number,
+  ): RechargeHistoryResponseDto {
+    return {
+      data: recharges.map(RechargeMapper.toHistoryItem),
+      pagination: {
+        page,
+        size,
+        totalElements: total,
+        totalPages: Math.ceil(total / size),
+      },
     };
   }
 
