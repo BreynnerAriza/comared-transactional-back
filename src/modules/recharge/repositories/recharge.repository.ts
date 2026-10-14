@@ -13,12 +13,14 @@ export class RechargeRepository {
   ) {}
 
   async createPending(
+    userId: string,
     supplierId: string,
     supplierName: string,
     cellPhone: string,
     amount: number,
   ): Promise<RechargeEntity> {
     const recharge = this.repository.create({
+      userId,
       supplierId,
       supplierName,
       cellPhone,

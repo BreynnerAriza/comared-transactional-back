@@ -3,10 +3,13 @@ import {
   CreateDateColumn,
   Entity,
   Index,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
+import { UserEntity } from '../../users/entities/user.entity';
 import { RechargeStatus } from '../enums/recharge-status.enum';
 
 @Entity('recharge')
@@ -17,6 +20,14 @@ export class RechargeEntity {
 
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  @Index('idx_recharge_user_id')
+  @Column({ name: 'user_id', type: 'uuid' })
+  userId: string;
+
+  @ManyToOne(() => UserEntity, { nullable: false, onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'user_id' })
+  user?: UserEntity;
 
   @Column({ name: 'supplier_id', type: 'varchar', length: 50 })
   supplierId: string;

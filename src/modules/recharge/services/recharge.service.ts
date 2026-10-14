@@ -25,13 +25,14 @@ export class RechargeService {
     private readonly rechargeRepository: RechargeRepository,
     private readonly supplierService: SupplierService,
   ) {}
-
-  // Métodos públicos
-
-  async buy(request: RechargeBuyRequestDto): Promise<RechargeBuyResponse> {
+  async buy(
+    userId: string,
+    request: RechargeBuyRequestDto,
+  ): Promise<RechargeBuyResponse> {
     const supplier = await this.supplierService.getById(request.supplierId);
 
     const recharge = await this.rechargeRepository.createPending(
+      userId,
       supplier.id,
       supplier.name,
       request.cellPhone,
@@ -48,8 +49,6 @@ export class RechargeService {
 
     return RechargeMapper.toBuyResponse(recharge, response);
   }
-
-  // Ejecución de compras
 
   private async executePurchase(
     request: RechargeBuyRequestDto,
@@ -82,8 +81,6 @@ export class RechargeService {
     return response;
   }
 
-  // Validaciones
-
   private isValidResponse(response: ComaredBuyResponseDto): boolean {
     return (
       !!response &&
@@ -91,8 +88,6 @@ export class RechargeService {
       !!response.transactionalID.trim()
     );
   }
-
-  // Manejo de errores
 
   private async handleFailedPurchase(
     rechargeId: string,
