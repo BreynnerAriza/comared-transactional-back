@@ -58,7 +58,6 @@ export class AuthService {
       accessToken,
       tokenType: 'Bearer',
       user: {
-        id: user.id,
         name: user.name,
         email: user.email,
       },
