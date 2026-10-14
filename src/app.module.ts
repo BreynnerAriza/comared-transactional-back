@@ -10,13 +10,14 @@ import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
 import databaseConfig from './config/database.config';
 import jwtConfig from './config/jwt.config';
+import corsConfig from './config/cors.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: `.env.${process.env.NODE_ENV || 'local'}`,
-      load: [apiConfig, databaseConfig, jwtConfig],
+      load: [apiConfig, databaseConfig, jwtConfig, corsConfig],
     }),
 
     TypeOrmModule.forRootAsync({
