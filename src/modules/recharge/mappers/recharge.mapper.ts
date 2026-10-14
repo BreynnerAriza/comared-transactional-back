@@ -5,7 +5,7 @@ import { RechargeDto } from '../dto/recharge.dto';
 import { RechargeHistoryItemDto } from '../dto/recharge-history-item.dto';
 import { RechargeHistoryResponseDto } from '../dto/recharge-history-response.dto';
 import { RechargeEntity } from '../entities/recharge.entity';
-import { RechargeBuyResponse } from '../interfaces/recharge-buy-response.interface';
+import { RechargeBuyResponseDto } from '../dto/recharge-buy-response.dto';
 
 export class RechargeMapper {
   static toComaredBuyRequest(
@@ -21,7 +21,7 @@ export class RechargeMapper {
   static toBuyResponse(
     recharge: RechargeEntity,
     response: ComaredBuyResponseDto,
-  ): RechargeBuyResponse {
+  ): RechargeBuyResponseDto {
     return {
       rechargeId: recharge.id,
       transactionalID: response.transactionalID,

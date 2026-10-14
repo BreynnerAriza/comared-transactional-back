@@ -1,4 +1,4 @@
-export interface RechargeBuyResponse {
+export class RechargeBuyResponseDto {
   rechargeId: string;
   transactionalID: string;
   message: string;

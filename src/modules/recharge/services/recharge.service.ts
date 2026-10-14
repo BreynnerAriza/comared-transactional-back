@@ -13,7 +13,7 @@ import { SupplierService } from '../../supplier/services/supplier.service';
 import { RechargeBuyRequestDto } from '../dto/recharge-buy-request.dto';
 import { RechargeMapper } from '../mappers/recharge.mapper';
 import { RechargeRepository } from '../repositories/recharge.repository';
-import { RechargeBuyResponse } from '../interfaces/recharge-buy-response.interface';
+import { RechargeBuyResponseDto } from '../dto/recharge-buy-response.dto';
 import { RechargeHistoryQueryDto } from '../dto/recharge-history-query.dto';
 import { RechargeHistoryResponseDto } from '../dto/recharge-history-response.dto';
 
@@ -30,7 +30,7 @@ export class RechargeService {
   async buy(
     userId: string,
     request: RechargeBuyRequestDto,
-  ): Promise<RechargeBuyResponse> {
+  ): Promise<RechargeBuyResponseDto> {
     const supplier = await this.supplierService.getById(request.supplierId);
 
     const recharge = await this.rechargeRepository.createPending(
