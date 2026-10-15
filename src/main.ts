@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import corsConfig from './config/cors.config';
+import { setupSwagger } from './swagger/swagger.config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -23,6 +24,10 @@ async function bootstrap() {
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
   });
+
+  if (process.env.NODE_ENV !== 'production') {
+    setupSwagger(app);
+  }
 
   await app.listen(process.env.PORT ?? 3000);
   
