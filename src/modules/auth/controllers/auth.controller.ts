@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiConflictResponse,
@@ -11,7 +11,6 @@ import {
 import { AuthService } from '../services/auth.service';
 import { LoginRequestDto } from '../dtos/login-request.dto';
 import { RegisterRequestDto } from '../dtos/register-request.dto';
-import { CurrentUser } from '../../../common/current-user.decorator';
 import { Public } from '../decorators/public.decorator';
 import { LoginResponseDto } from '../dtos/login-response.dto';
 import { RegisterResponseDto } from '../dtos/register-response.dto';

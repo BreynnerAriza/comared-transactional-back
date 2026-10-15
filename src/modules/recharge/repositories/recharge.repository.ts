@@ -1,8 +1,4 @@
-import {
-  ConflictException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -41,7 +37,7 @@ export class RechargeRepository {
     id: string,
     transactionalId: string,
     providerMessage: string,
-  ): Promise<void> {
+  ): Promise<boolean> {
     const result = await this.repository.update(
       { id, status: RechargeStatus.PENDING },
       {
@@ -51,14 +47,10 @@ export class RechargeRepository {
       },
     );
 
-    if (result.affected === 0) {
-      throw new ConflictException(
-        'La recarga no existe o ya no está pendiente',
-      );
-    }
+    return (result.affected ?? 0) > 0;
   }
 
-  async markFailed(id: string, providerMessage: string): Promise<void> {
+  async markFailed(id: string, providerMessage: string): Promise<boolean> {
     const result = await this.repository.update(
       { id, status: RechargeStatus.PENDING },
       {
@@ -67,14 +59,10 @@ export class RechargeRepository {
       },
     );
 
-    if (result.affected === 0) {
-      throw new NotFoundException(
-        'No se encontró una recarga pendiente para actualizar',
-      );
-    }
+    return (result.affected ?? 0) > 0;
   }
 
-  async markUnknown(id: string, providerMessage: string): Promise<void> {
+  async markUnknown(id: string, providerMessage: string): Promise<boolean> {
     const result = await this.repository.update(
       { id, status: RechargeStatus.PENDING },
       {
@@ -83,11 +71,7 @@ export class RechargeRepository {
       },
     );
 
-    if (result.affected === 0) {
-      throw new NotFoundException(
-        'No se encontró una recarga pendiente para actualizar',
-      );
-    }
+    return (result.affected ?? 0) > 0;
   }
 
   async findById(id: string): Promise<RechargeEntity | null> {

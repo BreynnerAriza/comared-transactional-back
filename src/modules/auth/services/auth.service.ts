@@ -6,6 +6,7 @@ import { RegisterResponseDto } from '../dtos/register-response.dto';
 import { UsersService } from '../../users/services/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as argon2 from 'argon2';
+import { AuthMapper } from '../mappers/auth.mapper';
 
 @Injectable()
 export class AuthService {
@@ -23,11 +24,7 @@ export class AuthService {
       passwordHash,
     });
 
-    return {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-    };
+    return AuthMapper.toRegisterResponse(user);
   }
 
   async login(request: LoginRequestDto): Promise<LoginResponseDto> {
@@ -54,13 +51,6 @@ export class AuthService {
       sub: user.id,
     });
 
-    return {
-      accessToken,
-      tokenType: 'Bearer',
-      user: {
-        name: user.name,
-        email: user.email,
-      },
-    };
+    return AuthMapper.toLoginResponse(user, accessToken);
   }
 }

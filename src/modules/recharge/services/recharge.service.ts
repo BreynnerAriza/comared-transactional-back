@@ -1,21 +1,22 @@
 import {
   BadGatewayException,
+  ConflictException,
   Injectable,
   Logger,
   UnprocessableEntityException,
 } from '@nestjs/common';
 
 import { ComaredClientService } from '../../../integrations/comared/services/comared-client.service';
-import { ComaredBuyResponseDto } from '../../../integrations/comared/dto/comared-buy-response.dto';
+import { ComaredBuyResponseDto } from '../../../integrations/comared/dtos/comared-buy-response.dto';
 import { ComaredRequestRejectedException } from '../../../integrations/comared/exceptions/comared-request-rejected.exception';
 import { SupplierService } from '../../supplier/services/supplier.service';
 
-import { RechargeBuyRequestDto } from '../dto/recharge-buy-request.dto';
+import { RechargeBuyRequestDto } from '../dtos/recharge-buy-request.dto';
 import { RechargeMapper } from '../mappers/recharge.mapper';
 import { RechargeRepository } from '../repositories/recharge.repository';
-import { RechargeBuyResponseDto } from '../dto/recharge-buy-response.dto';
-import { RechargeHistoryQueryDto } from '../dto/recharge-history-query.dto';
-import { RechargeHistoryResponseDto } from '../dto/recharge-history-response.dto';
+import { RechargeBuyResponseDto } from '../dtos/recharge-buy-response.dto';
+import { RechargeHistoryQueryDto } from '../dtos/recharge-history-query.dto';
+import { RechargeHistoryResponseDto } from '../dtos/recharge-history-response.dto';
 
 @Injectable()
 export class RechargeService {
@@ -43,11 +44,17 @@ export class RechargeService {
 
     const response = await this.executePurchase(request, recharge.id);
 
-    await this.rechargeRepository.markSuccess(
+    const updated = await this.rechargeRepository.markSuccess(
       recharge.id,
       response.transactionalID,
       response.message,
     );
+
+    if (!updated) {
+      throw new ConflictException(
+        'La recarga no existe o ya no está pendiente',
+      );
+    }
 
     return RechargeMapper.toBuyResponse(recharge, response);
   }

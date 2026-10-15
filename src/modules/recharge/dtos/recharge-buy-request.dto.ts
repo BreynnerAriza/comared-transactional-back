@@ -6,6 +6,7 @@ import {
   IsNumber,
   Min,
   Max,
+  IsOptional,
 } from 'class-validator';
 
 export class RechargeBuyRequestDto {
@@ -13,9 +14,9 @@ export class RechargeBuyRequestDto {
   @IsNotEmpty()
   supplierId: string;
 
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  supplierName: string;
+  supplierName?: string;
 
   @IsNumber()
   @Min(1000)

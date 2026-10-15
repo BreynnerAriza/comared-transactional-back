@@ -8,8 +8,8 @@ import type { ConfigType } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
 import { isAxiosError } from 'axios';
 import apiConfig from '../../../config/api.config';
-import { ComaredAuthRequestDto } from '../dto/comared-auth-request.dto';
-import { ComaredAuthResponseDto } from '../dto/comared-auth-response.dto';
+import { ComaredAuthRequestDto } from '../dtos/comared-auth-request.dto';
+import { ComaredAuthResponseDto } from '../dtos/comared-auth-response.dto';
 
 @Injectable()
 export class ComaredAuthService {
@@ -17,9 +17,6 @@ export class ComaredAuthService {
   private static readonly BEARER_TOKEN_REGEX = /^Bearer\s+\S+$/i;
   private readonly logger = new Logger(ComaredAuthService.name);
   private token: string | null = null;
-
-  // Autenticación en curso compartida: si varias peticiones piden token a la
-  // vez, todas esperan esta misma promesa y solo se hace un POST /auth.
   private authenticationPromise: Promise<string> | null = null;
 
   constructor(
@@ -43,19 +40,12 @@ export class ComaredAuthService {
     try {
       return await promise;
     } finally {
-      // Se libera tanto en éxito como en error, para que un fallo no deje
-      // bloqueados los intentos posteriores.
       if (this.authenticationPromise === promise) {
         this.authenticationPromise = null;
       }
     }
   }
 
-  /**
-   * Descarta el token en caché (p. ej. tras recibir un 401).
-   * Si se pasa el token que falló, solo se invalida cuando coincide con el
-   * actual; así una petición antigua no borra un token recién renovado.
-   */
   invalidateToken(token?: string): void {
     if (token && this.token !== token) {
       return;
@@ -93,8 +83,6 @@ export class ComaredAuthService {
       return token;
 
     } catch (error) {
-      // No se registra el error completo: un AxiosError incluye config.headers
-      // (API key) y config.data (password). Solo se registran datos seguros.
       const status = isAxiosError(error) ? error.response?.status : undefined;
       const code = isAxiosError(error) ? error.code : undefined;
       const message = error instanceof Error ? error.message : String(error);

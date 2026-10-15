@@ -1,8 +1,6 @@
-import { ComaredSupplierResponseDto } from '../../../integrations/comared/dto/comared-supplier-response.dto';
-import { SupplierDto } from '../dto/supplier.dto';
+import { ComaredSupplierResponseDto } from '../../../integrations/comared/dtos/comared-supplier-response.dto';
+import { SupplierDto } from '../dtos/supplier.dto';
 
-// Aísla el contrato público del contrato de Comared: si la API externa cambia
-// o se agregan campos propios, solo se modifica este mapper.
 export class SupplierMapper {
   static toDto(supplier: ComaredSupplierResponseDto): SupplierDto {
     return {

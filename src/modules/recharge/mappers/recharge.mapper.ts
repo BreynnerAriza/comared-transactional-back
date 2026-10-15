@@ -1,11 +1,10 @@
-import { ComaredBuyRequestDto } from '../../../integrations/comared/dto/comared-buy-request.dto';
-import { ComaredBuyResponseDto } from '../../../integrations/comared/dto/comared-buy-response.dto';
-import { RechargeBuyRequestDto } from '../dto/recharge-buy-request.dto';
-import { RechargeDto } from '../dto/recharge.dto';
-import { RechargeHistoryItemDto } from '../dto/recharge-history-item.dto';
-import { RechargeHistoryResponseDto } from '../dto/recharge-history-response.dto';
+import { ComaredBuyRequestDto } from '../../../integrations/comared/dtos/comared-buy-request.dto';
+import { ComaredBuyResponseDto } from '../../../integrations/comared/dtos/comared-buy-response.dto';
+import { RechargeBuyRequestDto } from '../dtos/recharge-buy-request.dto';
+import { RechargeHistoryItemDto } from '../dtos/recharge-history-item.dto';
+import { RechargeHistoryResponseDto } from '../dtos/recharge-history-response.dto';
 import { RechargeEntity } from '../entities/recharge.entity';
-import { RechargeBuyResponseDto } from '../dto/recharge-buy-response.dto';
+import { RechargeBuyResponseDto } from '../dtos/recharge-buy-response.dto';
 
 export class RechargeMapper {
   static toComaredBuyRequest(
@@ -52,28 +51,13 @@ export class RechargeMapper {
     size: number,
   ): RechargeHistoryResponseDto {
     return {
-      data: recharges.map(RechargeMapper.toHistoryItem),
+      data: recharges.map((recharge) => RechargeMapper.toHistoryItem(recharge)),
       pagination: {
         page,
         size,
         totalElements: total,
         totalPages: Math.ceil(total / size),
       },
-    };
-  }
-
-  static toDto(recharge: RechargeEntity): RechargeDto {
-    return {
-      id: recharge.id,
-      supplierId: recharge.supplierId,
-      supplierName: recharge.supplierName,
-      cellPhone: recharge.cellPhone,
-      value: recharge.amount,
-      status: recharge.status,
-      transactionalId: recharge.transactionalId,
-      message: recharge.providerMessage,
-      createdAt: recharge.createdAt,
-      updatedAt: recharge.updatedAt,
     };
   }
 }

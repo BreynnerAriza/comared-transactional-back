@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ComaredClientService } from '../../../integrations/comared/services/comared-client.service';
-import { SupplierDto } from '../dto/supplier.dto';
+import { SupplierDto } from '../dtos/supplier.dto';
 import { SupplierMapper } from '../mappers/supplier.mapper';
 
 @Injectable()
@@ -10,7 +10,7 @@ export class SupplierService {
   async getSuppliers(): Promise<SupplierDto[]> {
     const suppliers = await this.comaredClientService.getSuppliers();
 
-    return suppliers.map(SupplierMapper.toDto);
+    return suppliers.map((supplier) => SupplierMapper.toDto(supplier));
   }
 
   async getById(id: string): Promise<SupplierDto> {

@@ -9,7 +9,7 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { SupplierService } from '../services/supplier.service';
-import { SupplierDto } from '../dto/supplier.dto';
+import { SupplierDto } from '../dtos/supplier.dto';
 
 @ApiTags('Supplier')
 @ApiBearerAuth('access-token')

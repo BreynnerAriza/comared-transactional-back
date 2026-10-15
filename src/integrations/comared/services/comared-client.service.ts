@@ -9,9 +9,9 @@ import { HttpService } from '@nestjs/axios';
 import { isAxiosError } from 'axios';
 
 import { ComaredAuthService } from './comared-auth.service';
-import { ComaredSupplierResponseDto } from '../dto/comared-supplier-response.dto';
-import { ComaredBuyRequestDto } from '../dto/comared-buy-request.dto';
-import { ComaredBuyResponseDto } from '../dto/comared-buy-response.dto';
+import { ComaredSupplierResponseDto } from '../dtos/comared-supplier-response.dto';
+import { ComaredBuyRequestDto } from '../dtos/comared-buy-request.dto';
+import { ComaredBuyResponseDto } from '../dtos/comared-buy-response.dto';
 import { ComaredRequestRejectedException } from '../exceptions/comared-request-rejected.exception';
 
 @Injectable()
@@ -37,8 +37,6 @@ export class ComaredClientService {
       true,
     );
   }
-
-  // Peticiones HTTP
 
   private async fetchSuppliers(
     token: string,
@@ -71,8 +69,6 @@ export class ComaredClientService {
     return response.data;
   }
 
-  // Autenticación y reintentos
-
   private async requestWithAuth<T>(
     operation: (token: string) => Promise<T>,
     errorMessage: string,
@@ -102,8 +98,6 @@ export class ComaredClientService {
       }
     }
   }
-
-  // Validación y manejo de errores
 
   private isUnauthorized(error: unknown): boolean {
     return isAxiosError(error) && error.response?.status === 401;
