@@ -13,8 +13,10 @@ import {
   ApiBadGatewayResponse,
   ApiBadRequestResponse,
   ApiBearerAuth,
+  ApiConflictResponse,
   ApiCreatedResponse,
   ApiGatewayTimeoutResponse,
+  ApiHeader,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -23,6 +25,7 @@ import {
   ApiUnauthorizedResponse,
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
+import { Idempotent } from '@nestjs/idempotency';
 import { RechargeService } from '../services/recharge.service';
 import { RechargeBuyRequestDto } from '../dtos/recharge-buy-request.dto';
 import { RechargeBuyResponseDto } from '../dtos/recharge-buy-response.dto';
@@ -41,18 +44,34 @@ export class RechargeController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @Idempotent({
+    required: true,
+    ttl: '24h',
+    storeIf: (status) => status < 500 || status === HttpStatus.BAD_GATEWAY,
+  })
   @ApiOperation({ summary: 'Comprar una recarga' })
+  @ApiHeader({
+    name: 'Idempotency-Key',
+    required: true,
+    description:
+      'Identificador único del intento de compra. Los reintentos con la misma clave devuelven la respuesta original.',
+  })
   @ApiCreatedResponse({
     description: 'Recarga realizada correctamente',
     type: RechargeBuyResponseDto,
   })
   @ApiBadRequestResponse({ description: 'Datos de la recarga inválidos' })
   @ApiNotFoundResponse({ description: 'El operador no existe en el catálogo' })
-  @ApiUnprocessableEntityResponse({ description: 'El proveedor rechazó la recarga' })
+  @ApiUnprocessableEntityResponse({
+    description: 'El proveedor rechazó la recarga o la clave de idempotencia se usó con otros datos',
+  })
   @ApiBadGatewayResponse({
     description: 'No fue posible confirmar el resultado de la recarga con el proveedor',
   })
   @ApiGatewayTimeoutResponse({ description: 'El proveedor no respondió a tiempo' })
+  @ApiConflictResponse({
+    description: 'Ya hay una recarga en proceso con la misma clave de idempotencia',
+  })
   async buy(
     @CurrentUser() user: AuthenticatedUser,
     @Body() request: RechargeBuyRequestDto,

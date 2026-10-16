@@ -11,6 +11,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import databaseConfig from './config/database.config';
 import jwtConfig from './config/jwt.config';
 import corsConfig from './config/cors.config';
+import { IdempotencyModule } from '@nestjs/idempotency';
 
 @Module({
   imports: [
@@ -33,6 +34,11 @@ import corsConfig from './config/cors.config';
         synchronize: false,
         logging: false,
       }),
+    }),
+
+    IdempotencyModule.forRoot({
+      allowInMemoryStorage: true,
+      scope: (request: { user?: { id: string } }) => request.user?.id,
     }),
 
     SupplierModule,
