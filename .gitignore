@@ -62,9 +62,12 @@ pids
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
-# documentación y scripts SQL locales
+# documentación local
 docs
-sql
+
+# scripts SQL: solo se versiona el script de creación de tablas
+/sql/*
+!/sql/001_create_tables.sql
 
 # Peticiones HTTP locales
 /http

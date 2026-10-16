@@ -1,8 +1,15 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Headers,
+  HttpCode,
+  HttpStatus,
+  Post,
+  UnauthorizedException,
+} from '@nestjs/common';
 import {
   ApiBadRequestResponse,
-  ApiConflictResponse,
-  ApiCreatedResponse,
+  ApiExcludeEndpoint,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
@@ -14,25 +21,25 @@ import { RegisterRequestDto } from '../dtos/register-request.dto';
 import { Public } from '../decorators/public.decorator';
 import { LoginResponseDto } from '../dtos/login-response.dto';
 import { RegisterResponseDto } from '../dtos/register-response.dto';
-
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Public()
+  @ApiExcludeEndpoint()
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Registrar un nuevo usuario' })
-  @ApiCreatedResponse({
-    description: 'Usuario registrado correctamente',
-    type: RegisterResponseDto,
-  })
-  @ApiBadRequestResponse({ description: 'Datos de registro inválidos' })
-  @ApiConflictResponse({ description: 'El correo electrónico ya está registrado' })
   async register(
+    @Headers('x-api-key') apiKey: string | undefined,
     @Body() request: RegisterRequestDto,
   ): Promise<RegisterResponseDto> {
+    const registerApiKey = process.env.REGISTER_API_KEY;
+
+    if (!registerApiKey || apiKey !== registerApiKey) {
+      throw new UnauthorizedException('API key inválida o ausente');
+    }
+
     return this.authService.register(request);
   }
 
