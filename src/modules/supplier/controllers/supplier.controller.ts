@@ -5,6 +5,7 @@ import {
   ApiGatewayTimeoutResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiServiceUnavailableResponse,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
@@ -28,6 +29,7 @@ export class SupplierController {
   @ApiUnauthorizedResponse({ description: 'Token ausente, inválido o expirado' })
   @ApiBadGatewayResponse({ description: 'No fue posible consultar el proveedor' })
   @ApiGatewayTimeoutResponse({ description: 'El proveedor no respondió a tiempo' })
+  @ApiServiceUnavailableResponse({ description: 'No fue posible autenticarse con el proveedor' })
   async getSuppliers(): Promise<SupplierDto[]> {
     return this.supplierService.getSuppliers();
   }

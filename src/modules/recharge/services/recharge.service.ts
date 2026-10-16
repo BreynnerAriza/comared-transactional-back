@@ -4,12 +4,14 @@ import {
   Injectable,
   Logger,
   NotFoundException,
+  ServiceUnavailableException,
   UnprocessableEntityException,
 } from '@nestjs/common';
 
 import { ComaredClientService } from '../../../integrations/comared/services/comared-client.service';
 import { ComaredBuyResponseDto } from '../../../integrations/comared/dtos/comared-buy-response.dto';
 import { ComaredRequestRejectedException } from '../../../integrations/comared/exceptions/comared-request-rejected.exception';
+import { ComaredUnavailableException } from '../../../integrations/comared/exceptions/comared-unavailable.exception';
 import { SupplierService } from '../../supplier/services/supplier.service';
 
 import { RechargeBuyRequestDto } from '../dtos/recharge-buy-request.dto';
@@ -107,6 +109,10 @@ export class RechargeService {
         return this.handleFailedPurchase(rechargeId, error.message);
       }
 
+      if (error instanceof ComaredUnavailableException) {
+        return this.handleUnavailablePurchase(rechargeId, error.message);
+      }
+
       return this.handleUnknownPurchase(
         rechargeId,
         'No fue posible confirmar el resultado con el proveedor',
@@ -141,6 +147,21 @@ export class RechargeService {
 
     throw new UnprocessableEntityException({
       message: 'El proveedor rechazó la recarga',
+      rechargeId,
+    });
+  }
+
+  private async handleUnavailablePurchase(
+    rechargeId: string,
+    reason: string,
+  ): Promise<never> {
+    this.logger.error(`La recarga ${rechargeId} no se ejecutó: ${reason}`);
+
+    await this.rechargeRepository.markFailed(rechargeId, reason);
+
+    throw new ServiceUnavailableException({
+      message:
+        'El servicio de recargas no está disponible en este momento. Intenta de nuevo más tarde.',
       rechargeId,
     });
   }

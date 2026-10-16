@@ -13,6 +13,7 @@ import { ComaredSupplierResponseDto } from '../dtos/comared-supplier-response.dt
 import { ComaredBuyRequestDto } from '../dtos/comared-buy-request.dto';
 import { ComaredBuyResponseDto } from '../dtos/comared-buy-response.dto';
 import { ComaredRequestRejectedException } from '../exceptions/comared-request-rejected.exception';
+import { ComaredUnavailableException } from '../exceptions/comared-unavailable.exception';
 
 @Injectable()
 export class ComaredClientService {
@@ -74,7 +75,7 @@ export class ComaredClientService {
     errorMessage: string,
     treatClientErrorAsRejection = false,
   ): Promise<T> {
-    const token = await this.authService.getToken();
+    const token = await this.getToken();
 
     try {
       return await operation(token);
@@ -86,16 +87,30 @@ export class ComaredClientService {
       this.logger.warn('Token de Comared rechazado. Renovando autenticación.');
       this.authService.invalidateToken(token);
 
+      const newToken = await this.getToken();
+
       try {
-        const newToken = await this.authService.getToken();
         return await operation(newToken);
       } catch (retryError) {
+        if (this.isUnauthorized(retryError)) {
+          this.logger.error('Comared rechazó también el token renovado');
+          throw new ComaredUnavailableException(retryError);
+        }
+
         this.handleError(
           retryError,
           errorMessage,
           treatClientErrorAsRejection,
         );
       }
+    }
+  }
+
+  private async getToken(): Promise<string> {
+    try {
+      return await this.authService.getToken();
+    } catch (error) {
+      throw new ComaredUnavailableException(error);
     }
   }
 

@@ -21,6 +21,7 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiParam,
+  ApiServiceUnavailableResponse,
   ApiTags,
   ApiUnauthorizedResponse,
   ApiUnprocessableEntityResponse,
@@ -69,6 +70,10 @@ export class RechargeController {
     description: 'No fue posible confirmar el resultado de la recarga con el proveedor',
   })
   @ApiGatewayTimeoutResponse({ description: 'El proveedor no respondió a tiempo' })
+  @ApiServiceUnavailableResponse({
+    description:
+      'No fue posible autenticarse con el proveedor; la recarga no se ejecutó y se puede reintentar con la misma clave',
+  })
   @ApiConflictResponse({
     description: 'Ya hay una recarga en proceso con la misma clave de idempotencia',
   })
