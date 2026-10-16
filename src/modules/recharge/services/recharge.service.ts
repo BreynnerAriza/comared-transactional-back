@@ -3,6 +3,7 @@ import {
   ConflictException,
   Injectable,
   Logger,
+  NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
 
@@ -17,6 +18,7 @@ import { RechargeRepository } from '../repositories/recharge.repository';
 import { RechargeBuyResponseDto } from '../dtos/recharge-buy-response.dto';
 import { RechargeHistoryQueryDto } from '../dtos/recharge-history-query.dto';
 import { RechargeHistoryResponseDto } from '../dtos/recharge-history-response.dto';
+import { RechargeDetailResponseDto } from '../dtos/recharge-detail-response.dto';
 
 @Injectable()
 export class RechargeService {
@@ -72,6 +74,22 @@ export class RechargeService {
     );
 
     return RechargeMapper.toHistoryResponse(recharges, total, page, size);
+  }
+
+  async getById(
+    userId: string,
+    rechargeId: string,
+  ): Promise<RechargeDetailResponseDto> {
+    const recharge = await this.rechargeRepository.findByIdAndUserId(
+      rechargeId,
+      userId,
+    );
+
+    if (!recharge) {
+      throw new NotFoundException('La recarga no existe');
+    }
+
+    return RechargeMapper.toDetailResponse(recharge);
   }
 
   private async executePurchase(

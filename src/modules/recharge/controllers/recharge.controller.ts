@@ -1,4 +1,14 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  Query,
+} from '@nestjs/common';
 import {
   ApiBadGatewayResponse,
   ApiBadRequestResponse,
@@ -8,6 +18,7 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiParam,
   ApiTags,
   ApiUnauthorizedResponse,
   ApiUnprocessableEntityResponse,
@@ -19,6 +30,7 @@ import { CurrentUser } from '../../../common/current-user.decorator';
 import type { AuthenticatedUser } from '../../auth/dtos/authenticated-user.interface';
 import { RechargeHistoryQueryDto } from '../dtos/recharge-history-query.dto';
 import { RechargeHistoryResponseDto } from '../dtos/recharge-history-response.dto';
+import { RechargeDetailResponseDto } from '../dtos/recharge-detail-response.dto';
 
 @ApiTags('Recharge')
 @ApiBearerAuth('access-token')
@@ -62,4 +74,22 @@ export class RechargeController {
   ): Promise<RechargeHistoryResponseDto> {
     return this.rechargeService.getHistory(user.id, query);
   }
+
+  @Get(':id')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Consultar el detalle de una recarga del usuario autenticado' })
+  @ApiParam({ name: 'id', description: 'Identificador (UUID) de la recarga', format: 'uuid' })
+  @ApiOkResponse({
+    description: 'Detalle de la recarga',
+    type: RechargeDetailResponseDto,
+  })
+  @ApiBadRequestResponse({ description: 'El id no es un UUID válido' })
+  @ApiNotFoundResponse({ description: 'La recarga no existe o no pertenece al usuario' })
+  async getById(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<RechargeDetailResponseDto> {
+    return this.rechargeService.getById(user.id, id);
+  }
+  
 }

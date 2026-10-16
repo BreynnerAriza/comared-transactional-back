@@ -5,6 +5,7 @@ import { RechargeHistoryItemDto } from '../dtos/recharge-history-item.dto';
 import { RechargeHistoryResponseDto } from '../dtos/recharge-history-response.dto';
 import { RechargeEntity } from '../entities/recharge.entity';
 import { RechargeBuyResponseDto } from '../dtos/recharge-buy-response.dto';
+import { RechargeDetailResponseDto } from '../dtos/recharge-detail-response.dto';
 
 export class RechargeMapper {
   static toComaredBuyRequest(
@@ -41,6 +42,21 @@ export class RechargeMapper {
       transactionalId: recharge.transactionalId,
       providerMessage: recharge.providerMessage,
       createdAt: recharge.createdAt,
+    };
+  }
+
+  static toDetailResponse(recharge: RechargeEntity): RechargeDetailResponseDto {
+    return {
+      id: recharge.id,
+      supplierId: recharge.supplierId,
+      supplierName: recharge.supplierName,
+      cellPhone: recharge.cellPhone,
+      amount: recharge.amount,
+      status: recharge.status,
+      transactionalId: recharge.transactionalId,
+      providerMessage: recharge.providerMessage,
+      createdAt: recharge.createdAt,
+      updatedAt: recharge.updatedAt,
     };
   }
 

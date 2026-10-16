@@ -78,6 +78,13 @@ export class RechargeRepository {
     return this.repository.findOneBy({ id });
   }
 
+  async findByIdAndUserId(
+    id: string,
+    userId: string,
+  ): Promise<RechargeEntity | null> {
+    return this.repository.findOneBy({ id, userId });
+  }
+
   async findByUserId(
     userId: string,
     page: number,
