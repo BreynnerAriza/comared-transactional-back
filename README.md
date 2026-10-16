@@ -319,49 +319,6 @@ Cada módulo sigue la misma organización: `controllers/`, `services/`, `reposit
 
 ---
 
-## ☁️ Despliegue en Render
-
-La API está desplegada como **Web Service** en [Render](https://render.com):
-
-🔗 **https://comared-transactional-back.onrender.com**
-
-Configuración usada:
-
-| Opción | Valor |
-|---|---|
-| Runtime | Node |
-| Build Command | `npm install && npm run build` |
-| Start Command | `npm run start:prod` |
-| Variables de entorno | Las mismas de la tabla de [Variables de entorno](#-variables-de-entorno), cargadas en *Environment* |
-| Base de datos | PostgreSQL, inicializada con `sql/001_create_tables.sql` |
-
-Para desplegar tu propia copia:
-
-1. Crea una base de datos PostgreSQL (en Render o en otro proveedor) y ejecuta `sql/001_create_tables.sql`.
-2. En Render, crea un **New → Web Service** y conecta tu fork del repositorio.
-3. Configura el *Build Command* y el *Start Command* de la tabla anterior.
-4. Agrega las variables de entorno en la pestaña **Environment**. Render asigna `PORT` automáticamente.
-5. Despliega. Cada `push` a la rama configurada vuelve a desplegar la API.
-
----
-
-## 📜 Scripts disponibles
-
-| Script | Descripción |
-|---|---|
-| `npm run start` | Arranca la aplicación |
-| `npm run start:dev` | Arranca en modo desarrollo con recarga automática |
-| `npm run start:debug` | Arranca en modo debug con recarga automática |
-| `npm run build` | Compila el proyecto a `dist/` |
-| `npm run start:prod` | Ejecuta la versión compilada (`dist/main.js`) |
-| `npm run test` | Ejecuta las pruebas unitarias |
-| `npm run test:watch` | Ejecuta las pruebas en modo observador |
-| `npm run test:cov` | Ejecuta las pruebas y genera el reporte de cobertura |
-| `npm run lint` | Analiza el código con oxlint |
-| `npm run format` | Formatea el código con Prettier |
-
----
-
 ## 👤 Autor
 
 **Breynner Ariza** · [GitHub](https://github.com/BreynnerAriza)
