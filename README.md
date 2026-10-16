@@ -206,7 +206,7 @@ npm run build
 npm run start:prod
 ```
 
-> ℹ️ Con `NODE_ENV=production` la app busca el archivo `.env.production` (o usa las variables del sistema, como en Render) y **no** expone Swagger.
+> ℹ️ Con `NODE_ENV=production` la app busca el archivo `.env.production` (o usa las variables del sistema, como en Render).
 
 ---
 
