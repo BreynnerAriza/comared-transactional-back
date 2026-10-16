@@ -1,124 +1,324 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Comared Transactional API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+API REST construida con **NestJS** para la venta de recargas de telefonía móvil. Permite autenticar usuarios con JWT, consultar los operadores disponibles, comprar recargas a través de la API de **PuntoRed** y consultar el historial y el detalle de cada transacción.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+| | |
+|---|---|
+| 🌐 **API desplegada** | https://comared-transactional-back.onrender.com |
+| 📖 **Documentación (Swagger)** | https://comared-transactional-back.onrender.com/api/docs |
+| 💻 **Repositorio** | https://github.com/BreynnerAriza/comared-transactional-back |
 
-## Description
+---
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Tabla de contenido
 
-## Project setup
+1. [Tecnologías](#-tecnologías)
+2. [Requisitos previos](#-requisitos-previos)
+3. [Instalación paso a paso](#-instalación-paso-a-paso)
+4. [Base de datos](#-base-de-datos)
+5. [Variables de entorno](#-variables-de-entorno)
+6. [Ejecutar el proyecto](#-ejecutar-el-proyecto)
+7. [Documentación de la API (Swagger)](#-documentación-de-la-api-swagger)
+8. [Endpoints](#-endpoints)
+9. [Pruebas](#-pruebas)
+10. [Estructura del proyecto](#-estructura-del-proyecto)
+11. [Despliegue en Render](#-despliegue-en-render)
+12. [Scripts disponibles](#-scripts-disponibles)
 
-```bash
-$ npm install
-```
+---
 
-## Compile and run the project
+## 🧰 Tecnologías
 
-```bash
-# development
-$ npm run start
+- **Node.js** + **TypeScript**
+- **NestJS 12** (framework)
+- **PostgreSQL** + **TypeORM** (persistencia)
+- **JWT** con Passport (autenticación) y **argon2** (hash de contraseñas)
+- **@nestjs/idempotency** (evita compras duplicadas con el header `Idempotency-Key`)
+- **@nestjs/axios** (integración con la API de PuntoRed)
+- **Swagger / OpenAPI** (documentación)
+- **Jest** (pruebas unitarias)
+- **oxlint** + **Prettier** (calidad de código)
 
-# watch mode
-$ npm run start:dev
+---
 
-# production mode
-$ npm run start:prod
-```
+## ✅ Requisitos previos
 
-## Run tests
+Antes de empezar, asegúrate de tener instalado:
 
-```bash
-# unit tests
-$ npm run test
+| Herramienta | Versión | Verificar con |
+|---|---|---|
+| [Node.js](https://nodejs.org/) | **24.x LTS** (recomendada, mínimo 20.19) | `node -v` |
+| npm | Incluido con Node.js (10+) | `npm -v` |
+| [PostgreSQL](https://www.postgresql.org/download/) | **13 o superior** (probado con 16) | `psql --version` |
+| [Git](https://git-scm.com/) | Cualquier versión reciente | `git --version` |
 
-# e2e tests
-$ npm run test:e2e
+También necesitas las **credenciales de la API de PuntoRed** (usuario, contraseña, URL y API key) que se entregan con la prueba técnica.
 
-# test coverage
-$ npm run test:cov
-```
+---
 
-## Deployment
+## 🚀 Instalación paso a paso
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### 1. Clonar el repositorio
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+git clone https://github.com/BreynnerAriza/comared-transactional-back.git
+cd comared-transactional-back
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Observability
-
-In production applications, observability is essential for understanding how your system behaves, detecting issues early, and maintaining reliable performance.
-
-[NestJS Observe](https://observe.nestjs.com) automatically instruments your NestJS application, giving you deep visibility into your system with minimal setup:
-
-- **Distributed tracing:** Follow requests across services and understand how they flow through your system.
-- **Waterfall analysis:** Visualize request execution and identify slow operations, bottlenecks, and unexpected delays.
-- **Performance analysis:** Analyze application performance in real time and quickly pinpoint areas that need optimization.
-- **Metrics:** Track key application and infrastructure metrics to understand system health and performance trends.
-- **Logging:** Centralize and correlate logs with traces and other telemetry to make debugging easier.
-- **Error tracking:** Detect errors quickly and investigate their root causes with the surrounding context.
-- **SLA monitoring:** Track service-level objectives and identify when your application is approaching or exceeding defined thresholds.
-- **Alarms and alerts:** Set up alerts for critical errors, performance degradation, SLA violations, and other anomalies so your team can react quickly.
-
-To add it to this project:
+### 2. Instalar dependencias
 
 ```bash
-$ npm install @nestjs/observe
+npm install
 ```
 
-Then follow the [setup guide](https://docs.nestjs.com/observability/overview) - it takes a single import and an app key.
+### 3. Crear la base de datos
 
-The free plan needs no payment details and covers 300,000 events a month. You can also browse the [live demo](https://www.observe-demo.nestjs.com/dashboard) first - the whole dashboard over a busy service's data, with nothing to install.
+> ⚠️ **Importante:** la aplicación **no crea la base de datos ni las tablas** por sí sola (`synchronize` está desactivado). Debes crearlas **antes** de arrancar el proyecto. Revisa la sección [Base de datos](#-base-de-datos).
 
-## Resources
+### 4. Configurar las variables de entorno
 
-Check out a few resources that may come in handy when working with NestJS:
+```bash
+# Linux / macOS / Git Bash
+cp .env.example .env.local
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Auto-instrument your application with [NestJS Observe](https://observe.nestjs.com). Distributed tracing, metrics, and logging made easy. Error tracking and performance monitoring for your NestJS applications.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+# Windows (PowerShell)
+Copy-Item .env.example .env.local
+```
 
-## Support
+Luego edita `.env.local` con tus valores reales. Revisa la sección [Variables de entorno](#-variables-de-entorno).
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+### 5. Arrancar el proyecto
 
-## Stay in touch
+```bash
+npm run start:dev
+```
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Si todo salió bien, la API queda disponible en http://localhost:3000 y la documentación en http://localhost:3000/api/docs 🎉
 
-## License
+---
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+## 🗄️ Base de datos
+
+El script para crear las tablas está en la carpeta [`sql/`](./sql):
+
+| Archivo | Descripción |
+|---|---|
+| [`sql/001_create_tables.sql`](./sql/001_create_tables.sql) | Crea las tablas `app_user` y `recharge`, con sus llaves, índices y restricciones. |
+
+### Modelo de datos
+
+```
+app_user                              recharge
+─────────────────────────────         ─────────────────────────────
+id             uuid  PK      ◄──┐     id                uuid  PK
+name           varchar(150)     └──── user_id           uuid  FK
+email          varchar(255) UQ        supplier_id       varchar(50)
+password_hash  varchar(255)           supplier_name     varchar(150)
+created_at     timestamptz            cell_phone        varchar(10)
+updated_at     timestamptz            amount            numeric(12,2)
+                                      status            varchar(20)  (PENDING | SUCCESS | FAILED | UNKNOWN)
+                                      transactional_id  varchar(100) UQ
+                                      provider_message  text
+                                      created_at        timestamptz
+                                      updated_at        timestamptz
+```
+
+### Paso 1: crear la base de datos
+
+Primero crea una base de datos vacía. Puedes usar el nombre que quieras, solo recuerda ponerlo después en `DB_DATABASE`:
+
+```bash
+psql -U postgres -c "CREATE DATABASE comared_db;"
+```
+
+> También puedes crearla desde **pgAdmin** o **DBeaver**: clic derecho en *Databases* → *Create* → *Database…*
+
+### Paso 2: ejecutar el script
+
+```bash
+psql -U postgres -d comared_db -f sql/001_create_tables.sql
+```
+
+> Desde pgAdmin o DBeaver: abre un editor SQL **conectado a `comared_db`**, pega el contenido de `sql/001_create_tables.sql` y ejecútalo.
+
+### Paso 3: verificar
+
+```bash
+psql -U postgres -d comared_db -c "\dt"
+```
+
+Deberías ver las tablas `app_user` y `recharge`.
+
+> ℹ️ El script usa `gen_random_uuid()`, que viene incluida en PostgreSQL 13+ sin instalar extensiones. Todo corre en una transacción (`BEGIN` / `COMMIT`), así que si algo falla no queda nada a medias.
+
+---
+
+## 🔐 Variables de entorno
+
+La aplicación carga el archivo `.env.${NODE_ENV}`. Si `NODE_ENV` no está definido, usa **`.env.local`**. Si falta alguna variable obligatoria, la aplicación no arranca y muestra cuál falta.
+
+| Variable | Obligatoria | Descripción | Ejemplo |
+|---|:---:|---|---|
+| `PORT` | No | Puerto HTTP de la API (por defecto `3000`) | `3000` |
+| `API_URL` | ✅ | URL base de la API de PuntoRed | `https://.../api` |
+| `API_USERNAME` | ✅ | Usuario de PuntoRed | `usuario` |
+| `API_PASSWORD` | ✅ | Contraseña de PuntoRed | `contraseña` |
+| `API_KEY_NAME` | ✅ | Nombre del header de la API key | `x-api-key` |
+| `API_KEY_VALUE` | ✅ | Valor de la API key | `clave` |
+| `DB_HOST` | ✅ | Host de PostgreSQL | `localhost` |
+| `DB_PORT` | ✅ | Puerto de PostgreSQL | `5432` |
+| `DB_USERNAME` | ✅ | Usuario de PostgreSQL | `postgres` |
+| `DB_PASSWORD` | ✅ | Contraseña de PostgreSQL | `postgres` |
+| `DB_DATABASE` | ✅ | Base de datos creada en el paso anterior | `comared_db` |
+| `JWT_SECRET` | ✅ | Secreto para firmar los tokens (**mínimo 32 caracteres**) | `un_secreto_largo_y_aleatorio...` |
+| `JWT_EXPIRES_IN_SECONDS` | No | Duración del token en segundos (por defecto `3600`) | `3600` |
+| `CORS_ORIGINS` | ✅ | Orígenes permitidos, separados por coma | `http://localhost:4200,http://localhost:5173` |
+
+> 💡 Para generar un `JWT_SECRET` seguro:
+> ```bash
+> node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
+> ```
+
+> 🔒 Los archivos `.env.*` están en el `.gitignore`. **Nunca subas tus credenciales al repositorio**; solo se versiona `.env.example`.
+
+---
+
+## ▶️ Ejecutar el proyecto
+
+```bash
+# Desarrollo (recarga automática al guardar cambios)
+npm run start:dev
+
+# Desarrollo sin recarga automática
+npm run start
+
+# Modo debug (con recarga automática)
+npm run start:debug
+```
+
+### Modo producción
+
+```bash
+# 1. Compilar el proyecto (genera la carpeta dist/)
+npm run build
+
+# 2. Ejecutar la versión compilada
+npm run start:prod
+```
+
+> ℹ️ Con `NODE_ENV=production` la app busca el archivo `.env.production` (o usa las variables del sistema, como en Render) y **no** expone Swagger.
+
+---
+
+## 📖 Documentación de la API (Swagger)
+
+La documentación interactiva está disponible en:
+
+- **En línea (Render):** https://comared-transactional-back.onrender.com/api/docs
+- **Local:** http://localhost:3000/api/docs
+
+### ¿Cómo probar los endpoints protegidos?
+
+1. Inicia sesión con `POST /auth/login` usando las credenciales de prueba entregadas junto con la prueba técnica, y copia el `accessToken` de la respuesta.
+2. Haz clic en el botón **Authorize** 🔓 (arriba a la derecha) y pega el token.
+3. ¡Listo! Ya puedes llamar los endpoints protegidos. El token se mantiene aunque recargues la página.
+
+> ⏳ Render usa un plan gratuito: si la API lleva un rato sin uso, la primera petición puede tardar **30–60 segundos** mientras el servicio se activa.
+
+---
+
+## 🔌 Endpoints
+
+| Método | Ruta | Auth | Descripción |
+|---|---|:---:|---|
+| `GET` | `/` | — | Verificación de que la API está arriba |
+| `POST` | `/auth/login` | — | Iniciar sesión y obtener el JWT |
+| `GET` | `/suppliers` | 🔒 JWT | Listar los operadores disponibles |
+| `POST` | `/recharge` | 🔒 JWT | Comprar una recarga (requiere header `Idempotency-Key`) |
+| `GET` | `/recharge/history?page=1&size=10` | 🔒 JWT | Historial paginado del usuario (`size` máximo 100) |
+| `GET` | `/recharge/:id` | 🔒 JWT | Detalle de una recarga del usuario |
+
+### Reglas de negocio de la compra
+
+- `value`: entre **1.000** y **100.000**.
+- `cellPhone`: **10 dígitos** y debe empezar por **3**.
+- `supplierId`: debe existir en el catálogo de operadores.
+
+### Idempotencia en `POST /recharge`
+
+Cada compra debe enviar un header `Idempotency-Key` único (por ejemplo, un UUID). Si el cliente reintenta la petición con **la misma clave**, la API devuelve la respuesta original **sin cobrar dos veces**. Las claves se guardan por usuario durante **24 horas**.
+
+Ejemplo:
+
+```bash
+curl -X POST http://localhost:3000/recharge \
+  -H "Authorization: Bearer <TU_TOKEN>" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: 7b1e0c3a-2f4d-4b8e-9a61-3c5d2e8f9a10" \
+  -d '{ "supplierId": "8753", "value": 5000, "cellPhone": "3001234567" }'
+```
+
+---
+
+## 🧪 Pruebas
+
+El proyecto tiene **pruebas unitarias** con Jest para controladores, servicios, guards, estrategias, mappers y validaciones de DTOs (17 suites, 140 pruebas). No requieren base de datos ni conexión con PuntoRed: todas las dependencias externas se simulan con mocks.
+
+```bash
+# Ejecutar todas las pruebas unitarias
+npm run test
+
+# Modo observador (vuelve a ejecutar al guardar cambios)
+npm run test:watch
+
+# Reporte de cobertura (se genera en coverage/)
+npm run test:cov
+```
+
+Después de `npm run test:cov`, abre `coverage/lcov-report/index.html` en el navegador para ver el reporte detallado.
+
+> ℹ️ Este proyecto **no incluye pruebas end-to-end (e2e)**; el alcance de las pruebas es unitario.
+
+### Calidad de código
+
+```bash
+# Linter
+npm run lint
+
+# Formatear el código con Prettier
+npm run format
+```
+
+---
+
+## 📁 Estructura del proyecto
+
+```
+comared-transactional-back/
+├── sql/
+│   └── 001_create_tables.sql        # Script de creación de tablas
+├── src/
+│   ├── common/                      # Decoradores compartidos (@CurrentUser)
+│   ├── config/                      # Configuración tipada (API, BD, JWT, CORS)
+│   ├── integrations/
+│   │   └── comared/                 # Cliente HTTP y autenticación contra PuntoRed
+│   ├── modules/
+│   │   ├── auth/                    # Login, JWT y guard global
+│   │   ├── recharge/                # Compra, historial y detalle de recargas
+│   │   ├── supplier/                # Catálogo de operadores
+│   │   └── users/                   # Entidad y repositorio de usuarios
+│   ├── swagger/                     # Configuración de Swagger
+│   ├── app.module.ts
+│   └── main.ts                      # Punto de entrada (pipes, CORS, Swagger)
+├── .env.example                     # Plantilla de variables de entorno
+├── jest.config.ts
+└── package.json
+```
+
+Cada módulo sigue la misma organización: `controllers/`, `services/`, `repositories/`, `dtos/`, `mappers/`, `entities/`.
+
+---
+
+## 👤 Autor
+
+**Breynner Ariza** · [GitHub](https://github.com/BreynnerAriza)
